@@ -1,0 +1,183 @@
+import random # enables random chances
+
+def get_input(prompt): 
+    # Only allow correct prompts so incorrect answers would ask for the correct answer
+    return input(prompt).lower()
+
+def main():
+    print("You wake up in a prison cell, unable to remember what happened before. You see a skeleton of a past inmate and notice a small crack in the wall.")
+    player_name = get_playername() # allows the player to input their own name
+    
+    while True: # main loop to handle user input
+        alpha = get_input("What do you do?: (Search the skeleton/Look through the crack in the wall/Sleep on the floor to pass time) ")
+        
+        if alpha == "search the skeleton":
+            skeleton_scenario(player_name)
+        elif alpha == "look through the crack in the wall":
+            print("You look through the small crack in the wall and see an inmate lying against the wall.")
+        elif alpha == "sleep on the floor to pass time":
+            sleep_scenario(player_name) # leads to the next scenario depending on the choice
+
+def get_playername():
+    return get_input("What's your name?: ")
+
+def skeleton_scenario(player_name):
+    print("You find nothing on the skeleton.")
+    print("You hear a voice coming through the small crack in the wall from the next cell over. The inmate calls you over.")
+    gamma = get_input("What do you do?: (Talk to him/Ignore him) ")
+
+    if gamma == "talk to him":
+        print("You ask him for his name.")
+        print(f"He responds: 'I can't remember my name, but they called me Mr. Nagra. What's yours? Nice to meet you, {player_name}.")
+        escape_scenario_mrnagra(player_name)
+    elif gamma == "ignore him":
+        escape_scenario(player_name)
+
+def escape_scenario_mrnagra(player_name):
+    print(f"Mr. Nagra tells you, '{player_name}, the doors are rusty enough to kick down.'")
+    print("You and Mr. Nagra both kick down the prison cell doors and escape your cells.")
+    epsilon = get_input("Which way do you go?: (Go right/Go left) ")
+
+    if epsilon == "go right":
+        print("You and Mr. Nagra go right and discover the armory.")
+        ambush_armory(player_name)
+    elif epsilon == "go left":
+        print("You and Mr. Nagra go left and run into guards!")
+        theta = get_input("What do you do?: (Attack them/Run past them) ")
+
+        if theta == "attack them":
+            print("You overpower the guards and continue down the hallway.")
+            print("You and Mr. Nagra open the gate and encounter the Captain of the Guards, Captain Willhelm.")
+            boss_battle(player_name)
+        elif theta == "run past them":
+            print("You run past the guards and encounter a gate.")
+
+def boss_battle(player_name):
+    print(f"Captain Willhelm says: 'How dare you try to escape, {player_name} and Mr. Nagra! Now you will pay for this with your life!'")
+
+    player_health = 100
+    willhelm_health = 130
+    willhelm_name = "Captain Willhelm"
+    
+    print(f"You and Mr. Nagra stand ready, while {willhelm_name} prepares to attack!")
+
+    # start of the battle loop
+    while player_health > 0 and willhelm_health > 0:
+        # Display health
+        print(f"{player_name}'s HP: {player_health}")
+        print(f"{willhelm_name}'s HP: {willhelm_health}")
+        
+        # player's turn
+        action = get_input("What will you do? (Attack/Defend/Run): ")
+        
+        if action == "attack":
+            # player attacks and deals random damage between 10 and 20
+            player_damage = random.randint(10, 20)
+            willhelm_health -= player_damage
+            print(f"{player_name} attacks and deals {player_damage} damage to {willhelm_name}!")
+        
+        elif action == "defend":
+            # Defend reduces the boss's attack damage
+            print(f"{player_name} prepares to defend!")
+        
+        elif action == "run":
+            print(f"{player_name} tries to run, but the door is locked!")
+            continue  # Go to the next iteration of the loop
+        
+        # see if the boss is defeated
+        if willhelm_health <= 0:
+            print(f"{willhelm_name} has been defeated! You win!")
+            continue_story_after_boss_win(player_name) # enables player user name to used in the next set of strings
+            break
+        
+        # Willhelm's turn
+        print(f"{willhelm_name} prepares to attack!")
+        
+        # Boss attacks and player may defend
+        boss_damage = random.randint(15, 25)
+        if action == "defend":
+            boss_damage = boss_damage // 2  # does half damage if defending
+            print("You defend and reduce the damage!")
+        
+        player_health -= boss_damage
+        print(f"{willhelm_name} attacks and deals {boss_damage} damage!")
+        
+        # check if the player is defeated
+        if player_health <= 0:
+            print(f"{player_name} has been defeated by {willhelm_name}. Game Over!")
+            continue_story_after_boss_loss(player_name)
+            break
+    
+    print("Battle Ended.")
+
+def continue_story_after_boss_win(player_name):
+    print("You and Mr. Nagra catch your breath after defeating Captain Willhelm.")
+    print(f"Mr. Nagra says: '{player_name}, I have something to ask you. A war is coming. Would you want to join the revolutionaries or the King's Guards?'")
+    joining_sides(player_name)
+
+def continue_story_after_boss_loss(player_name):
+    print(f"Captain Willhelm says: 'You failed my expectations, {player_name}, now you shall die.'")
+    print("You were slain by Captain Willhelm. The End.")
+
+def joining_sides(player_name):
+    rho = get_input("Mr. Nagra says: What side do you choose? (the revolutionaries/the King's Knights)")
+    if rho == "the revolutionaries":
+        print(f"{player_name} says: 'I want to join the revolutionaries. I'm sick and tired of monarchies.'")
+        print(f"Mr. Nagra says: 'You're very wise, {player_name}. It seems you've chosen your path. But this is where my journey ends, {player_name}. Goodbye.'")
+        print("You decided to join the revolutionaries in their cause, climbing up the ranks and eventually becoming the leader of the revolutionaries. You succeeded in destroying the monarchy in the Kingdom of Elandor. The End.")
+    elif rho == "the King's Knights": 
+       print(f"{player_name} says: 'I want to join the King's Knights. I shall fight with honor and take up my sword under a new flag.'")
+       print(f"Mr. Nagra says: 'You're very wise, {player_name}. It seems you've chosen your path. Good, because I have much to tell you.'")
+       print("You decided to join the King's Knights and serve under the King. The End.")
+
+def ambush_armory(player_name):
+    lota = get_input("What do you do?: (Let them pass/Ambush them)")
+
+    if lota == "let them pass":
+        print(f"You and Mr. Nagra let the guards pass. You both quietly move down the hallway, {player_name}.")
+        print("You find a locked wooden door and exit to find chaos outside.")
+        print(f"Mr. Nagra says to you: 'It was nice meeting you, {player_name}.'")
+        print("The End.")
+    elif lota == "ambush them":
+        if random.random() < 0.9: # 90% random chance
+            print("You successfully ambush the guards.")
+            print("You find a locked wooden door and open it.")
+            print(f"You find yourself shocked by the chaos outside. Mr. Nagra says to you: 'It was nice meeting you, {player_name}.'")
+            print("You were then backstabbed by Mr. Nagra. The End.")
+        else:
+            print("You fail, and both of you are captured. The End.")
+
+def escape_scenario(player_name):
+    print(f"{player_name}, you decide to try to escape.")
+    bravo = get_input("What do you do?: (Try to kick down the door/Try to climb out of the small prison window) ")
+
+    if bravo == "try to kick down the door":
+        print("You kick the door and it falls down.")
+    elif bravo == "try to climb out of the prison window":
+        if random.random() < 0.5:
+            print("You succeed and escape into the chaos of the revolution. The End.")
+        else:
+            print("You fail to climb out of the window.")
+            escape_scenario(player_name)
+
+def sleep_scenario(player_name):
+    print(f"{player_name}, you are woken up by your captors. and they tell you about how you got there and where you are. They then offer you to join them.")
+    beta = get_input("What do you do?: (Join them/Refuse) ")
+
+    if beta == "join them":
+        betrayal_scenario(player_name)
+    elif beta == "refuse":
+        print("You were executed. The End.")
+
+def betrayal_scenario(player_name):
+    print(f"They bring you to the armory and give you a sword and armor, {player_name}.")
+    delta = get_input("What do you do?: (Betray them/Don't betray them) ")
+
+    if delta == "don't betray them":
+        print(f"You serve the kingdom, {player_name}. The End.")
+    elif delta == "betray them":
+        print(f"{player_name}, you decide to betray them.")
+        print("You backstab them and find a wooden door.")
+        print("The End.")
+
+main() # runs the game
