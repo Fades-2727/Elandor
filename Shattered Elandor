@@ -17,7 +17,7 @@ def main():
             print("You look through the small crack in the wall and see an inmate lying against the wall.")
         elif alpha == "sleep on the floor to pass time":
             sleep_scenario(player_name) # leads to the next scenario depending on the choice
-
+woah
 def get_playername():
     return get_input("What's your name?: ")
 
