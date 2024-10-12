@@ -51,7 +51,8 @@ def escape_scenario_mrnagra(player_name):
             boss_battle(player_name)
         elif theta == "run past them":
             print("You run past the guards and encounter a gate.")
-
+            print("You and Mr Nagra open the gate)
+            boss_battle(player_name)
 def boss_battle(player_name):
     print(f"Captain Willhelm says: 'How dare you try to escape, {player_name} and Mr. Nagra! Now you will pay for this with your life!'")
 
