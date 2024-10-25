@@ -1,0 +1,266 @@
+import time  # Provides various functions to manipulate time values
+import random  # Generates random variables
+import sys  # Contains methods and variables for modifying many elements
+
+def loading_screen():
+    print("Loading", end="")
+    for _ in range(5):
+        time.sleep(0.5)  # Delay by 0.5 seconds
+        print(".", end="")
+        sys.stdout.flush() #fixes buffering when loading to add immersion
+    print("\nDone")
+
+def get_input(prompt): 
+    return input(prompt).lower()  # Allow only lowercase responses for simplicity
+
+
+def main():
+    player_name = get_input("What's your name, player one?: ")
+
+    while True:  # Main loop to handle user input
+        alpha = get_input("Welcome to the Nim game. Would you like a description on how to play? (Yes/No) ")
+
+        if alpha == "yes":
+            loading_screen()
+            game_description()
+            
+        elif alpha == "no":
+            loading_screen()
+            game_mode_heaps(player_name) #Only pass the first player's name
+            break  # Exit loop to proceed with the game
+        else:
+            print("Please respond with 'yes' or 'no'.")
+
+def game_mode_heaps(player_name): #game mode selector
+    beta = get_input("Would you like to have randomly generated heaps or player-made? (random/player made) ")
+
+    if beta == "random":
+        play_mode = get_input("Do you want to play against another player or AI? (player/ai): ")
+        if play_mode == "player":
+            player_nametwo = get_input("What's your name, player two?: ")
+            loading_screen()
+            play_nim_game_random(player_name, player_nametwo)
+        elif play_mode == "ai":
+            loading_screen()
+            play_nim_game_ai(player_name)
+        else:
+            print("Please respond with 'player' or 'ai'.")
+    elif beta == "player made":
+        play_mode = get_input("Do you want to play against another player or AI? (player/ai): ")
+        if play_mode == "player":
+            player_nametwo = get_input("What's your name, player two?: ")
+            loading_screen()
+            play_nim_game(player_name, player_nametwo)
+        elif play_mode == "ai":
+            loading_screen()
+            play_nim_game_ai(player_name)
+        else:
+            print("Please respond with 'player' or 'ai'.")
+    else:
+        print("Please respond with 'random' or 'player made'.")
+    
+
+def game_description(): # Game description on how to play the nim game
+    print("The setup: There are several heaps (or piles) of objects (stones, sticks, etc.). Each heap has a different number of objects.")
+    print("Taking Turns: On your turn, you must choose one heap. Then, you can take any number of objects from that heap (but at least one). You can't take objects from multiple heaps on the same turn. The game continues with players alternating turns.")
+    print("Winning The Game: The player who takes the last object wins the game.")
+
+def get_playername():
+    return input("What's your name, player one? ")
+
+def get_playernametwo():
+    return input("What's your name, player two? ")
+
+def generate_random_heaps():
+    num_heaps = random.randint(2, 5)  #random number of heaps between 2 and 5
+    heaps = [random.randint(1, 10) for _ in range(num_heaps)]  #random number of objects 1 to 10 in each heap
+    return heaps
+
+def generate_user_defined_heaps(): #allows user generated heaps 
+    while True:
+        try:
+            num_heaps = int(input("How many heaps would you like to play with? (2-5): "))
+            if 2 <= num_heaps <= 5:
+                break
+            else:
+                print("Please choose between 2 and 5 heaps.")
+        except ValueError: #ValueErrror is an exception that occurs when a function receives an argument of the correct data type but an inappropriate value
+            print("Please enter a valid integer.")
+
+    heaps = []
+    for i in range(num_heaps):
+        while True:
+            try:
+                objects = int(input(f"How many objects for Heap {i + 1} (1-10): "))
+                if 1 <= objects <= 10:
+                    heaps.append(objects)
+                    break
+                else:
+                    print("Please enter a number between 1 and 10.")
+            except ValueError:
+                print("Please enter a valid integer.")
+    return heaps
+
+
+def display_heaps(heaps):
+    # Display the current state of the heaps
+    print("\nCurrent heaps:")
+    print("=" * 30)
+    for idx, heap in enumerate(heaps):  # Enumerate allows you to loop over a list with index
+        object_display = "|" * heap
+        print(f"Heap {idx + 1}: {object_display} {heap} objects")
+    print("=" * 30, "\n")
+def game_over(heaps):
+    # Game is over if all heaps are empty
+    return all(heap == 0 for heap in heaps)
+    #Gamemode if player chooses to play with someone else 
+def play_nim_game(player_name, player_nametwo):
+    heaps = generate_user_defined_heaps()  # Player-defined heaps
+    current_player = player_name  # Start with player one
+
+    while not game_over(heaps):
+        display_heaps(heaps)  # Show the current state of heaps
+        
+        if sum(heaps) == 1:  # If there is only one object left
+            print(f"{current_player} has to take the last object and loses!")
+            other_player = player_nametwo if current_player == player_name else player_name
+            print(f"Congratulations {other_player}, you win!")
+            break
+
+        heap_choice = int(input(f"{current_player}, choose a heap (1-{len(heaps)}): ")) - 1  # Choose a heap (adjust for 0-index)
+        
+        if heaps[heap_choice] == 0:
+            print("That heap is empty! Choose another one.")
+            continue
+        
+        objects_to_remove = int(input(f"How many objects will you remove from Heap {heap_choice + 1}? (1-{heaps[heap_choice]}): "))
+        
+        if objects_to_remove < 1 or objects_to_remove > heaps[heap_choice]:
+            print("Invalid number of objects. Try again.")
+            continue
+
+        # Remove the chosen number of objects from the selected heap
+        heaps[heap_choice] -= objects_to_remove
+
+        # allows alternate player turns
+        current_player = player_nametwo if current_player == player_name else player_name
+    #Game Mode version random if player wanted to have random values generated while also playing with someone else
+def play_nim_game_random(player_name, player_nametwo):
+    heaps = generate_random_heaps()  # Random heaps for this game
+    current_player = player_name  # Start with player one
+
+    while not game_over(heaps):
+        display_heaps(heaps)  # Show the current state of heaps
+        
+        if sum(heaps) == 1:  # If there is only one object left
+            print(f"{current_player} has to take the last object and loses!")
+            other_player = player_nametwo if current_player == player_name else player_name
+            print(f"Congratulations {other_player}, you win!")
+            break
+
+        heap_choice = int(input(f"{current_player}, choose a heap (1-{len(heaps)}): ")) - 1  # Choose a heap (adjust for 0-index)
+        
+        if heaps[heap_choice] == 0:
+            print("That heap is empty! Choose another one.")
+            continue
+        
+        objects_to_remove = int(input(f"How many objects will you remove from Heap {heap_choice + 1}? (1-{heaps[heap_choice]}): "))
+        
+        if objects_to_remove < 1 or objects_to_remove > heaps[heap_choice]:
+            print("Invalid number of objects. Try again.")
+            continue
+
+        # Remove the chosen number of objects from the selected heap
+        heaps[heap_choice] -= objects_to_remove
+
+        if sum(heaps) == 0:
+            print(f"{current_player} took the last object and loses!")
+            break
+
+        # allows alternate player turns
+        current_player = player_nametwo if current_player == player_name else player_name
+    #Game Mode against AI if player choose an AI to be an opponent
+def play_nim_game_ai(player_name):
+    heaps = generate_random_heaps()  # Generate random heaps
+    current_player = player_name
+    player_ai = "AI"
+    
+    difficulty = get_input("Choose the AI's difficulty: Easy, Medium, Hard? ").lower()
+    max_moves = int(get_input("Choose a limit of how many objects you can take: (1-3): "))
+
+    while difficulty not in ['easy', 'medium', 'hard']:
+        difficulty = get_input("Invalid input. Choose the AI's difficulty: Easy, Medium, Hard? ").lower()
+        
+    while not game_over(heaps):  # Check if the game is over
+        display_heaps(heaps)  # Show the current state of heaps
+        
+        if sum(heaps) == 1:
+            print(f"{current_player} has to take the last object and loses!")
+            other_player = player_ai if current_player == player_name else player_name
+            print(f"Congratulations {other_player}, you win!")
+            break
+        
+        if current_player == player_name:
+            # Player's turn
+            heap_choice = int(input(f"{current_player}, choose a heap (1-{len(heaps)}): ")) - 1  # Choose a heap (adjust for 0-index)
+            if heaps[heap_choice] == 0:
+                print("That heap is empty! Choose another one.")
+                continue
+            objects_to_remove = int(input(f"How many objects will you remove from Heap {heap_choice + 1}? (1-{min(heaps[heap_choice], max_moves)}): "))
+        else:
+            # AI's turn
+            print(f"\n{current_player}'s turn (AI):")
+            if difficulty == "easy":
+                # AI randomly chooses a valid heap and number of objects to remove
+                valid_heaps = [i for i in range(len(heaps)) if heaps[i] > 0]
+                heap_choice = random.choice(valid_heaps)
+                objects_to_remove = random.randint(1, min(heaps[heap_choice], max_moves))
+
+            elif difficulty == "medium":
+                # 50% chance to make a random move, 50% to make a smart move
+                if random.random() > 0.5:  
+                    valid_heaps = [i for i in range(len(heaps)) if heaps[i] > 0]
+                    heap_choice = random.choice(valid_heaps)
+                    objects_to_remove = random.randint(1, min(heaps[heap_choice], max_moves))
+                else:
+                    heap_choice, objects_to_remove = best_move(heaps, max_moves)
+
+            elif difficulty == "hard":
+                # Hard AI uses the best move strategy
+                heap_choice, objects_to_remove = best_move(heaps, max_moves)
+
+            print(f"AI removes {objects_to_remove} objects from Heap {heap_choice + 1}")
+
+        if objects_to_remove < 1 or objects_to_remove > heaps[heap_choice]:
+            print("Invalid number of objects. Try again.")
+            continue
+
+        # Remove the chosen number of objects from the selected heap
+        heaps[heap_choice] -= objects_to_remove
+
+        # makes alternate player turns possible
+        current_player = player_ai if current_player == player_name else player_name
+    #Gives the Hard AI the best moves possible 
+def best_move(heaps, max_moves):
+    nim_sum = 0
+    # Calculate nim-sum by XORing all heap values
+    for heap in heaps:
+        nim_sum ^= heap
+
+    # If nim-sum is zero, the AI will make a random move (losing position)
+    if nim_sum == 0:
+        heap_choice = random.choice([i for i in range(len(heaps)) if heaps[i] > 0])
+        objects_to_remove = random.randint(1, min(heaps[heap_choice], max_moves))
+    else:
+        # If nim-sum is non-zero, AI can make the best move possible
+        for i, heap in enumerate(heaps):
+            target_size = heap ^ nim_sum  # Calculate the target heap size after move
+            if (heap - target_size) <= max_moves and (heap - target_size) > 0:
+                heap_choice = i
+                objects_to_remove = heap - target_size
+                break
+
+    return heap_choice, objects_to_remove
+
+# Start the game
+main()
